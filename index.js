@@ -68,51 +68,66 @@ function addDepartment() {
           },
         ])
         .then(departmentName => {
-    
-    const sql = `INSERT INTO department (name) VALUES ${departmentName.addDepartment}`;
-    db.query(sql, (err, result) => {
+    const sql = `INSERT INTO department (name) VALUES (?)`;
+    const params = departmentName.addDepartment;
+    db.query(sql, params, (err, result) => {
+        console.log(`The id of ${params} has been added.`);
         if (err) throw err;
-        console.table(result);
         });
 
     }) 
 }
 
-function addRole () {
-    inquirer.prompt([
+function addRole() {
+        // one is call from the sql table
+        const sql = `SELECT * FROM department`;
+        db.query(sql, (err, deptData) =>{
+            if (err) throw err;
+            const dept = deptData
+            
+            return inquirer.prompt([
         {
             type: "input",
-            name: "addRoleName",
+            name: "roleName",
             message: "What is the name of the role?"
           },
           {
             type: "input",
-            name: "addRoleSalary",
+            name: "roleSalary",
             message: "What is the amount of the salary?"
           },
           {
             type: "list",
             name: "departmentList",
-            message: "Select which department this role is with."
+            message: "Select which department this role is with.",
+            choices: dept
           },
         ])
-    const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`;
-    const params = [
-      body.name
-    ];
-    db.query(sql, (err, rows) => {
-        if (err) throw err;
-          return;
-        });
+        .then(roleData => {
+            const sqlDept = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`;
+            const params = [
+              roleData.roleName,
+              roleData.roleSalary,
+              roleData.departmentList
+            ];
+            db.query(sqlDept, params, (err, result) => {
+                if (err) throw err;
+                
+                });
+        ``})
+        })
+    
 }
 
-// const addEmployee = () => {
 
-// }
 
-// const updateEmployee = () => {
+function addEmployee () {
 
-// }
+}
+
+const updateEmployee = () => {
+
+}
 
 
 starterPrompt();
