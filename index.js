@@ -130,9 +130,8 @@ function addEmployee () {
     const sql = `SELECT * FROM role`;
     db.query(sql, (err, roleData) => {
         if (err) throw err;
-        const employeeRole = roleData.map((id,title, salary, department) => 
-        (   {name: `${title} ${salary} ${department}`, 
-            value: `${id}`
+        const employeeRole = roleData.map((role) => 
+        (   {name: role.title, value: role.id
         }));
         console.log (employeeRole)
 
