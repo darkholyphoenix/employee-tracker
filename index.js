@@ -128,18 +128,22 @@ function addRole() {
 function addEmployee () {
     // one is call from the sql table
     const sql = `SELECT * FROM role`;
-    db.query(sql, (err, roleData) =>{
+    db.query(sql, (err, roleData) => {
         if (err) throw err;
-        const employeeRole = roleData.map((role) => 
-        ({ name: role.name, value: role.id}));
+        const employeeRole = roleData.map((id,title, salary, department) => 
+        (   {name: `${title} ${salary} ${department}`, 
+            value: `${id}`
+        }));
+        console.log (employeeRole)
+
 
     const mngerSql = `SELECT * FROM employee`;
     db.query(mngerSql, (err, employeeData) =>{
         if (err) throw err;
         console.log(employeeData);
-        const mnger = employeeData
-        // ((role) =>
-        // ({name: employeeData.first_name, value: manager_id}))
+        const mnger = employeeData.map((id,first_name, last_name, role_id, manager_id) =>
+        ({name: `${first_name} ${last_name} ${role_id}`, 
+        value: manager_id}))
         
         return inquirer.prompt([
     {
@@ -162,7 +166,7 @@ function addEmployee () {
         type: "list",
         name: "departmentList",
         message: "Select which manager is overseeing this employee:",
-        choices: mnger + ('No one')
+        choices: `${mnger}, No one`
       },
     ])
     .then(employData => {
@@ -185,7 +189,7 @@ function addEmployee () {
             });
     ``})
     })
-    })
+   })
 }
 
 const updateEmployee = () => {
