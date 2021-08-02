@@ -71,8 +71,9 @@ function addDepartment() {
     const sql = `INSERT INTO department (name) VALUES (?)`;
     const params = departmentName.addDepartment;
     db.query(sql, params, (err, result) => {
-        console.log(`The id of ${params} has been added.`);
         if (err) throw err;
+        console.log(`Department has been added.`);
+        console.table(result);
         });
 
     }) 
@@ -116,7 +117,8 @@ function addRole() {
             ];
             db.query(sqlDept, params, (err, result) => {
                 if (err) throw err;
-                
+                console.log("Role has been added");
+                console.table(result);
                 });
         ``})
         })
@@ -140,9 +142,9 @@ function addEmployee () {
     db.query(mngerSql, (err, employeeData) =>{
         if (err) throw err;
         console.log(employeeData);
-        const mnger = employeeData.map((id,first_name, last_name, role_id, manager_id) =>
-        ({name: `${first_name} ${last_name} ${role_id}`, 
-        value: manager_id}))
+        const mnger = employeeData.map((employee) =>
+        ({name: employee.first_name + ' ' + employee.last_name, value: employee.manager_id}))
+        
         
         return inquirer.prompt([
     {
@@ -165,14 +167,11 @@ function addEmployee () {
         type: "list",
         name: "departmentList",
         message: "Select which manager is overseeing this employee:",
-        choices: `${mnger}, No one`
+        choices: mnger
       },
     ])
     .then(employData => {
 
-        if(employData.departmentList === 'No one') {
-            employData.departmentList === 'NULL'
-        }
         const sqlEmployment = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
 
         
@@ -184,17 +183,42 @@ function addEmployee () {
         ];
         db.query(sqlEmployment, params, (err, result) => {
             if (err) throw err;
-            
+            console.log("Employee has been added")
+            console.table(result);
             });
     ``})
     })
    })
 }
 
-const updateEmployee = () => {
+function updateEmployee() {
+    const sql = `SELECT * FROM employee`;
+    db.query(sql, (err, result) =>{
+        if (err) throw err;
+        const employeeList = result.map((employee) =>
+        ({name: employee.first_name + ' ' + employee.last_name}))
 
-}
+        return inquirer.prompt([
+            {
+                type: "list",
+                name: "updateEmployee",
+                message: "What would you like to update?",
+                choices: ["First Name", "Last Name", "Role", "Department"],
+              },
+            ]).then((updateSelection) => {
+                if (updateSelection.updateEmployee === "First Name") {
+                  updateFirstName();
+                } else if (updateSelection.updateEmployee === "Last Name") {
+                  updateLastName();
+                } else if (updateSelection.updateEmployee === "Role") {
+                  updateRole();
+                } else if (updateSelection.updateEmployee === "Department") {
+                  updateDepartment();
+                };
+      
+              })}
 
+    )}
 
 starterPrompt();
 
