@@ -83,8 +83,10 @@ function addRole() {
         const sql = `SELECT * FROM department`;
         db.query(sql, (err, deptData) =>{
             if (err) throw err;
-            const dept = deptData
-            
+            const dept = deptData.map((department) => 
+            ({ name: department.name, value: department.id}));
+            console.log(dept)
+
             return inquirer.prompt([
         {
             type: "input",
@@ -105,6 +107,8 @@ function addRole() {
         ])
         .then(roleData => {
             const sqlDept = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`;
+
+            
             const params = [
               roleData.roleName,
               roleData.roleSalary,
@@ -122,7 +126,66 @@ function addRole() {
 
 
 function addEmployee () {
+    // one is call from the sql table
+    const sql = `SELECT * FROM role`;
+    db.query(sql, (err, roleData) =>{
+        if (err) throw err;
+        const employeeRole = roleData.map((role) => 
+        ({ name: role.name, value: role.id}));
 
+    const mngerSql = `SELECT * FROM employee`;
+    db.query(mngerSql, (err, employeeData) =>{
+        if (err) throw err;
+        console.log(employeeData);
+        const mnger = employeeData
+        // ((role) =>
+        // ({name: employeeData.first_name, value: manager_id}))
+        
+        return inquirer.prompt([
+    {
+        type: "input",
+        name: "employeeFirstName",
+        message: "What is the first name of the employee?"
+      },
+      {
+        type: "input",
+        name: "roleSalary",
+        message: "What is the second name of the employee?"
+      },
+      {
+        type: "list",
+        name: "roleList",
+        message: "Select which role this employee is assigned:",
+        choices: employeeRole
+      },
+      {
+        type: "list",
+        name: "departmentList",
+        message: "Select which manager is overseeing this employee:",
+        choices: mnger + ('No one')
+      },
+    ])
+    .then(employData => {
+
+        if(employData.departmentList === 'No one') {
+            employData.departmentList === 'NULL'
+        }
+        const sqlEmployment = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+
+        
+        const params = [
+          employData.employeeFirstName,
+          employData.employeeLastName,
+          employData.roleList,
+          employData.departmentList
+        ];
+        db.query(sqlEmployment, params, (err, result) => {
+            if (err) throw err;
+            
+            });
+    ``})
+    })
+    })
 }
 
 const updateEmployee = () => {
