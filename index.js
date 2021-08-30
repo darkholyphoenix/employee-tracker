@@ -9,7 +9,7 @@ function starterPrompt(){
             type: "list",
             name: "mainListChoices",
             message: "What would you like to do?",
-            choices: ['View All Departments', 'View All Roles', 'View All Employees', "Add A Department", "Add A Role", "Add An Employee", "Update An Employee Role"]
+            choices: ['View All Departments', 'View All Roles', 'View All Employees', "Add A Department", "Add A Role", "Add An Employee", "Update An Employee Role", "Quit"]
           }
         ])
         .then((mainSelection) => {
@@ -27,7 +27,9 @@ function starterPrompt(){
             addEmployee();
           } else if (mainSelection.mainListChoices === "Update An Employee Role") {
             updateEmployee();
-          };
+          } else if (mainSelection.mainListChoices === "Quit") {
+            quitTracker();
+          }
 
         })}
 
@@ -38,7 +40,7 @@ function viewDepartments() {
         console.log(result)
         console.table(result);
       });
-    
+      starterPrompt();
   
 }
 
@@ -48,6 +50,7 @@ function viewRoles() {
       if (err) throw err;
         console.table(result);
       });
+      starterPrompt();
 
 }
 
@@ -57,6 +60,7 @@ function viewEmployees() {
       if (err) throw err;
         console.table(result);
       });
+      starterPrompt();
 }
 
 function addDepartment() {
@@ -74,6 +78,7 @@ function addDepartment() {
         if (err) throw err;
         console.log(`Department has been added.`);
         console.table(result);
+        starterPrompt();
         });
 
     }) 
@@ -119,6 +124,7 @@ function addRole() {
                 if (err) throw err;
                 console.log("Role has been added");
                 console.table(result);
+                starterPrompt();
                 });
         ``})
         })
@@ -185,40 +191,68 @@ function addEmployee () {
             if (err) throw err;
             console.log("Employee has been added")
             console.table(result);
+            starterPrompt();
             });
     ``})
     })
    })
+   
 }
 
 function updateEmployee() {
     const sql = `SELECT * FROM employee`;
-    db.query(sql, (err, result) =>{
+    db.query(sql, (err, employeeData) =>{
         if (err) throw err;
-        const employeeList = result.map((employee) =>
-        ({name: employee.first_name + ' ' + employee.last_name}))
+        const employeeList = employeeData.map((employee) =>
+        ({name: employee.first_name + ' ' + employee.last_name, value: employee.id}))
+
+    const roleSql = `SELECT * FROM role`;
+    db.query(roleSql, (err, roleData) => {
+        if (err) throw err;
+        const employeeRole = roleData.map((role) => 
+        (   {name: role.title, value: role.id
+        }));
 
         return inquirer.prompt([
             {
                 type: "list",
                 name: "updateEmployee",
-                message: "What would you like to update?",
-                choices: ["First Name", "Last Name", "Role", "Department"],
+                message: "Which employee's role would you like to update?",
+                choices: employeeList
               },
-            ]).then((updateSelection) => {
-                if (updateSelection.updateEmployee === "First Name") {
-                  updateFirstName();
-                } else if (updateSelection.updateEmployee === "Last Name") {
-                  updateLastName();
-                } else if (updateSelection.updateEmployee === "Role") {
-                  updateRole();
-                } else if (updateSelection.updateEmployee === "Department") {
-                  updateDepartment();
-                };
-      
-              })}
-
-    )}
+              {
+                type: "list",
+                name: "roleList",
+                message: "Select which new role this employee is assigned:",
+                choices: employeeRole
+              }
+            ])
+            .then(updateSelection => {
+              
+              const updateRole = 
+              `UPDATE employee SET role_id = ? WHERE id = ?`;
+              
+              const params = [
+                updateSelection.roleList,
+                updateSelection.updateEmployee
+                
+              ];
+              db.query(updateRole, params, (err, result) => {
+                if (err) throw err;
+                console.log("Employee has been updated")
+                console.table(result);
+                starterPrompt();
+                });
+        })
+       })
+    })
+    // starterPrompt();
+  }
+   
+  function quitTracker(){
+    console.log("Goodbye")
+    process.exit();
+}
 
 starterPrompt();
 
