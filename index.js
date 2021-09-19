@@ -160,8 +160,8 @@ function addEmployee () {
       },
       {
         type: "input",
-        name: "roleSalary",
-        message: "What is the second name of the employee?"
+        name: "employeeLastName",
+        message: "What is the last name of the employee?"
       },
       {
         type: "list",
